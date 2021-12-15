@@ -1,36 +1,38 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
-import lombok.*;
+import lombok.Data;
 
-import javax.persistence.*;
-import java.util.List;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
 @Table(name = "economy")
-@Getter
-@Setter
-@AllArgsConstructor
-@NoArgsConstructor
+@Data
 public class EconomyEntity {
 
     @Id
-    @Column(name = "economy_name")
-    private String economyName;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    @OneToMany(mappedBy = "economy")
-    private List<StationEconomyEntity> economiesOfStation;
+    @Column(name = "name", nullable = false)
+    private String name;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof EconomyEntity)) return false;
         EconomyEntity that = (EconomyEntity) o;
-        return economyName.equals(that.economyName);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(economyName);
+        return Objects.hash(id);
     }
 }

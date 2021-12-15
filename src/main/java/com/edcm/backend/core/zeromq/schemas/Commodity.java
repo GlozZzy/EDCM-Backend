@@ -1,9 +1,13 @@
 package com.edcm.backend.core.zeromq.schemas;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class Commodity {
     @JsonProperty("buyPrice")
     private long buyPrice;
@@ -14,7 +18,7 @@ public class Commodity {
     @JsonProperty("meanPrice")
     private long meanPrice;
     @JsonProperty("name")
-    private String name;
+    private String eddnName;
     @JsonProperty("sellPrice")
     private long sellPrice;
     @JsonProperty("stock")

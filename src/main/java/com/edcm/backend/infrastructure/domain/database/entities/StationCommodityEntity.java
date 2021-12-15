@@ -1,55 +1,64 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
-import com.edcm.backend.infrastructure.domain.database.entities.keys.StationCommodityKey;
-import lombok.*;
-import org.hibernate.annotations.Formula;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
 
 import javax.persistence.*;
 import java.util.Objects;
 
-//@Entity
-@Table(name = "station_commodity")
+@Entity
+@Table(name = "commodities_at_station")
 @Getter
 @Setter
-@RequiredArgsConstructor
+@ToString
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class StationCommodityEntity {
 
-    @EmbeddedId
-    private StationCommodityKey key;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    @ManyToOne
-    @MapsId("stationName")
-    @JoinColumn(name = "station_name")
+    @JoinColumn(name = "station_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private StationEntity station;
 
-    @ManyToOne
-    @MapsId("commodityName")
-    @JoinColumn(name = "commodity_name")
+    @JoinColumn(name = "commodity_id", referencedColumnName = "id", nullable = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
+    @ToString.Exclude
     private CommodityEntity commodity;
 
+    @Column(name = "stock")
+    private Long stock;
+
+    @Column(name = "demand")
+    private Long demand;
+
     @Column(name = "buy_price")
-    private Integer buyPrice;
+    private Long buyPrice;
 
     @Column(name = "sell_price")
-    private Integer sellPrice;
-
-    @Formula("sell_price - buy_price")
-    private Integer profit;
+    private Long sellPrice;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof StationCommodityEntity)) return false;
         StationCommodityEntity that = (StationCommodityEntity) o;
-        return station.equals(that.station)
-            && commodity.equals(that.commodity)
-            && Objects.equals(buyPrice, that.buyPrice)
-            && Objects.equals(sellPrice, that.sellPrice)
-            && Objects.equals(profit, that.profit);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(station, commodity, buyPrice, sellPrice, profit);
+        return Objects.hash(id);
     }
 }

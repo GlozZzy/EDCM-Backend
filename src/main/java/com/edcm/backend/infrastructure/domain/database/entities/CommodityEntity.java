@@ -1,41 +1,61 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
-import java.util.List;
 import java.util.Objects;
 
-//@Entity
-@Table(name = "commodity")
-@Getter
-@Setter
+@Entity
+@Table(name = "commodity", indexes = {
+    @Index(name = "idx_commodity_name_unq", columnList = "name", unique = true),
+    @Index(name = "idx_commodity_eddn_name_unq", columnList = "eddn_name", unique = true)
+})
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class CommodityEntity {
 
     @Id
-    @Column(name = "commodity_name")
-    private String commodityName;
+    @Column(name = "id", nullable = false)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    @Column(name = "category")
-    @NotNull
-    private String category;
+    @Column(name = "name", nullable = false)
+    private String name;
 
-    @OneToMany(mappedBy = "commodity")
-    private List<StationCommodityEntity> commoditiesAtStation;
+    @Column(name = "eddn_name", nullable = false)
+    private String eddnName;
+
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
+    private CommodityCategoryEntity category;
+
+    public CommodityEntity(String name, String eddnName, CommodityCategoryEntity category) {
+        this.name = name;
+        this.eddnName = eddnName;
+        this.category = category;
+    }
+
+    public String getEddnName() {
+        return eddnName;
+    }
+
+    public void setEddnName(String eddnName) {
+        this.eddnName = eddnName;
+    }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        CommodityEntity that = (CommodityEntity) o;
-        return commodityName.equals(that.commodityName) && Objects.equals(category, that.category);
+        if (!(o instanceof CommodityEntity)) return false;
+        CommodityEntity entity = (CommodityEntity) o;
+        return Objects.equals(id, entity.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(commodityName, category);
+        return Objects.hash(id);
     }
 }

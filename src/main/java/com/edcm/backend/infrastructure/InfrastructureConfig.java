@@ -1,12 +1,18 @@
 package com.edcm.backend.infrastructure;
 
+import com.edcm.backend.core.mappers.GithubCommodityMapper;
+import com.edcm.backend.core.tools.GithubDataProvider;
+import com.edcm.backend.infrastructure.github.DefaultGithubDataProvider;
 import com.edcm.backend.infrastructure.github.DefaultGithubOperations;
 import com.edcm.backend.infrastructure.github.GithubOperations;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.web.reactive.function.client.WebClient;
 
 @Configuration
@@ -22,7 +28,14 @@ public class InfrastructureConfig {
     }
 
     @Bean
-    public GithubOperations githubOperations(@Qualifier("githubCommoditiesWebClient") WebClient githubWebClient) {
-        return new DefaultGithubOperations(githubWebClient);
+    public GithubOperations githubOperations(
+        @Qualifier("githubCommoditiesWebClient") WebClient githubWebClient,
+        ObjectMapper objectMapper) {
+        return new DefaultGithubOperations(githubWebClient, objectMapper);
+    }
+
+    @Bean
+    public GithubDataProvider githubDataProvider(GithubOperations githubOperations, GithubCommodityMapper mapper) {
+        return new DefaultGithubDataProvider(githubOperations, mapper);
     }
 }

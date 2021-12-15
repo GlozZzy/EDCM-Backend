@@ -1,54 +1,50 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
-import com.edcm.backend.infrastructure.domain.database.entities.keys.StationEconomyKey;
-import lombok.*;
+import lombok.Data;
 
-import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.persistence.CascadeType;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
-@Table(name = "station_economy")
-@Getter
-@Setter
-@RequiredArgsConstructor
+@Table(name = "stations_economies")
+@Data
 public class StationEconomyEntity {
 
-    @EmbeddedId
-    private StationEconomyKey id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
+    private Long id;
 
-    @ManyToOne
-    @MapsId("stationName")
-    @JoinColumn(name = "station_name")
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "station_id", nullable = false)
     private StationEntity station;
 
-    @ManyToOne
-    @MapsId("economyName")
-    @JoinColumn(name = "economy_name")
-    private EconomyEntity economy;
 
-    @NotNull
-    @Column(name="proportion")
-    private double proportion;
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "economy_id", nullable = false)
+    private EconomyEntity economyName;
+
+    @Column(name = "proportion")
+    private Double proportion;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (!(o instanceof StationEconomyEntity)) return false;
         StationEconomyEntity that = (StationEconomyEntity) o;
-        return Double.compare(that.proportion, proportion) == 0 && station.equals(that.station) && economy.equals(that.economy);
+        return Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(station, economy, proportion);
-    }
-
-    @Override
-    public String toString() {
-        return getClass().getSimpleName() + "(" +
-            "id = " + id + ", " +
-            "economy = " + economy + ", " +
-            "proportion = " + proportion + ")";
+        return Objects.hash(id);
     }
 }

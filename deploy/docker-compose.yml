@@ -1,0 +1,42 @@
+version: '3.9'
+
+x-logging-rules: &logging-rules
+  logging:
+    driver: "json-file"
+    options:
+      max-size: 20m
+      max-file: "10"
+
+services:
+
+  database:
+    image: postgres:14.1-alpine3.15
+    env_file:
+      - env/db.env
+    volumes:
+      - edcm-postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    container_name: database
+    restart: unless-stopped
+
+  edcm-backend:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    depends_on:
+      - database
+    ports:
+      - "8080:8080"
+    networks:
+      - backend
+    container_name: backend
+    restart: unless-stopped
+
+networks:
+  backend:
+
+volumes:
+  edcm-postgres-data:

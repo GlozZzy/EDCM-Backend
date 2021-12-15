@@ -1,6 +1,6 @@
 package com.edcm.backend.core.tools;
 
-import com.edcm.backend.core.dto.CommoditySharedData;
+import com.edcm.backend.core.shared.data.CommoditySharedData;
 
 import java.util.List;
 

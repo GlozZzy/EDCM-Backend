@@ -1,20 +1,27 @@
 package com.edcm.backend.core.zeromq;
 
+import com.edcm.backend.core.schedule.CommodityCheckService;
+import com.edcm.backend.core.services.CategoryTransactionHandler;
+import com.edcm.backend.core.services.CommodityTransactionHandler;
+import com.edcm.backend.core.services.EconomyTransactionHandler;
+import com.edcm.backend.core.services.StationTransactionHandler;
+import com.edcm.backend.core.services.SystemTransactionHandler;
+import com.edcm.backend.core.services.ZeromqCommoditesService;
+import com.edcm.backend.infrastructure.domain.database.repositories.ProhibitedCommodityRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.DependsOn;
 import org.springframework.integration.annotation.ServiceActivator;
 import org.springframework.integration.config.EnableIntegration;
 import org.springframework.integration.zeromq.channel.ZeroMqChannel;
 import org.springframework.messaging.MessageHandler;
 import org.zeromq.ZContext;
 
-import java.io.ByteArrayOutputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.zip.DataFormatException;
-import java.util.zip.Inflater;
-
 @Configuration
 @EnableIntegration
+@RequiredArgsConstructor
 public class ZeromqConfig {
 
     @Bean
@@ -23,30 +30,20 @@ public class ZeromqConfig {
     }
 
     @Bean(name = "zeroMqChannel")
-    ZeroMqChannel zeroMqPubSubChannel(ZContext context) {
+    public ZeroMqChannel zeroMqPubSubChannel(ZContext context) {
         ZeroMqChannel channel = new ZeroMqChannel(context, true);
         channel.setConnectUrl("tcp://eddn.edcd.io:9500:9500");
         return channel;
     }
 
-
     @Bean
+    @DependsOn("commodityCheckService")
     @ServiceActivator(inputChannel = "zeroMqChannel")
-    public MessageHandler subscribe() {
-
-        return message -> {
-            byte[] output = new byte[256 * 1024];
-            byte[] payload = (byte[]) message.getPayload();
-            Inflater inflater = new Inflater();
-            inflater.setInput(payload);
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream(payload.length);
-            try {
-                int outputLength = inflater.inflate(output);
-                String outputString = new String(output, 0, outputLength, StandardCharsets.UTF_8);
-                //System.out.println(outputString);
-            } catch (DataFormatException e) {
-                e.printStackTrace();
-            }
-        };
+    public MessageHandler messageHandler(
+        ObjectMapper objectMapper,
+        ZeromqCommoditesService zeromqCommoditesService,
+        CommodityCheckService commodityCheckService) {
+        commodityCheckService.updateCommodities();
+        return new ZeromqMessageHandler(objectMapper, zeromqCommoditesService);
     }
 }

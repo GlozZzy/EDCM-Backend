@@ -1,0 +1,17 @@
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Unknown');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Consumer Items');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Medicines');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Salvage');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Technology');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Foods');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Metals');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Chemicals');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Legal Drugs');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Weapons');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Industrial Materials');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Minerals');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Machinery');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Textiles');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Slavery');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'Waste');
+INSERT INTO public.commodity_category (id, name) VALUES (default, 'NonMarketable');
