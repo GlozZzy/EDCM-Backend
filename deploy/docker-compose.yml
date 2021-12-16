@@ -26,6 +26,8 @@ services:
     build:
       context: ..
       dockerfile: Dockerfile
+    env_file:
+      - env/backend.env
     depends_on:
       - database
     ports:

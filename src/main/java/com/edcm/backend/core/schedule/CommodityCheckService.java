@@ -13,6 +13,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
+import java.util.Objects;
+
 @Slf4j
 @RequiredArgsConstructor
 @Service("commodityCheckService")
@@ -26,19 +29,23 @@ public class CommodityCheckService {
     @Transactional
     @Scheduled(cron = "${values.scheduled.github.cron}")
     public void updateCommodities() {
-        log.info("Checking commodities updates");
+        log.debug("Checking commodities updates");
 
-        dataProvider.getCommodities()
-            .forEach(commodity -> {
+        var commodities = dataProvider.getCommodities()
+            .stream()
+            .map(commodity -> {
                 if (!repository.existsByEddnName(commodity.getEddnName())) {
                     CommodityCategoryEntity category = categoryTransactionHandler
                         .createOrFindCategory(commodity.getCategory().getName());
-                    CommodityEntity entity = new CommodityEntity(
+                    return new  CommodityEntity(
                         commodity.getName(),
                         commodity.getEddnName(),
                         category);
-                    repository.save(entity);
                 }
-            });
+                return null;
+            })
+            .filter(Objects::nonNull)
+            .toList();
+        repository.saveAll(commodities);
     }
 }

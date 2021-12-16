@@ -22,7 +22,7 @@ public class CommodityTransactionHandlerImpl implements CommodityTransactionHand
             .findCommodityEntityByEddnName(eddnName)
             .orElseGet(() -> {
                 var category = categoryTransactionHandler.createOrFindCategory("Unknown");
-                return repository.save(new CommodityEntity(eddnName, eddnName, category));
+                return repository.saveAndFlush(new CommodityEntity(eddnName, eddnName, category));
             });
     }
 

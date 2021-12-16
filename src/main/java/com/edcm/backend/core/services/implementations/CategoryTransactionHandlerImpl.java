@@ -20,7 +20,7 @@ public class CategoryTransactionHandlerImpl implements CategoryTransactionHandle
             .orElseGet(() -> {
                 var categoryEntity = new CommodityCategoryEntity();
                 categoryEntity.setName(category);
-                return repository.save(categoryEntity);
+                return repository.saveAndFlush(categoryEntity);
             });
     }
 }

@@ -12,18 +12,17 @@ import com.edcm.backend.core.zeromq.schemas.ZeromqCommodityPayload;
 import com.edcm.backend.infrastructure.domain.database.entities.CommodityEntity;
 import com.edcm.backend.infrastructure.domain.database.entities.ProhibitedCommodityEntity;
 import com.edcm.backend.infrastructure.domain.database.entities.StationCommodityEntity;
-import com.edcm.backend.infrastructure.domain.database.entities.StationEconomyEntity;
 import com.edcm.backend.infrastructure.domain.database.entities.StationEntity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.PersistentObjectException;
 import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.validation.ConstraintViolationException;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -36,7 +35,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     private final SystemTransactionHandler systemHandler;
 
     @Override
-    @Transactional
+    @Transactional(isolation = Isolation.SERIALIZABLE, propagation = Propagation.REQUIRES_NEW)
     public void saveData(ZeromqCommodityPayload payload) {
         CommodityContent content = payload.getContent();
         var station = stationHandler.createOrFindStation(content.getStationName());
@@ -52,6 +51,11 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     public void saveStation(StationEntity station) {
         try {
             stationHandler.saveStation(station);
+            if (station.getId() != null) {
+                log.debug(String.format("Updated \"%s\" station info", station.getName()));
+            } else {
+                log.debug(String.format("Updated \"%s\" station info", station.getName()));
+            }
         } catch (ConstraintViolationException | PersistentObjectException | DataAccessException e) {
             log.error("Error saving commodity info", e);
         }
@@ -62,8 +66,14 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
         station.getEconomies().clear();
         if (content.getEconomies() != null) {
             var economies = content.getEconomies()
-                .parallelStream()
-                .map(economy -> economyHandler.createOrFindEconomy(economy.getName()))
+                .stream()
+                .map(economy -> {
+                    var stationEconomyEntity = economyHandler.createOrFindEconomy(economy.getName());
+
+                    Double proportion = economy.getProportion();
+                    stationEconomyEntity.setProportion(proportion != null ? proportion : 1.0);
+                    return stationEconomyEntity;
+                })
                 .peek(economy -> economy.setStation(station))
                 .toList();
             station.getEconomies().addAll(economies);
@@ -75,7 +85,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
         station.getProhibited().clear();
         if (content.getProhibited() != null) {
             var prohibitedCommodityEntities = content.getProhibited()
-                .parallelStream()
+                .stream()
                 .map(this::initProhibitedCommodity)
                 .peek(prohibited -> prohibited.setStation(station))
                 .toList();

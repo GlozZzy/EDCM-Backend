@@ -22,7 +22,7 @@ spring:
     show-sql: false
 management:
   server:
-    port: 8081
+    port: 8080
   endpoint:
     health:
       show-details: always
@@ -31,8 +31,11 @@ management:
       exposure:
         include: "*"
     enabled-by-default: true
+logging:
+  level:
+    com.edcm: DEBUG
 values:
   github-commodities-url: https://raw.githubusercontent.com/RemainNA/cargo-manifest/main/items.json
   scheduled:
     github:
-      cron: "0 * * * * ?"
+      cron: "0 0 */12 * * ?"
