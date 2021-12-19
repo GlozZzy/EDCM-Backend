@@ -1,6 +1,12 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.Data;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -12,7 +18,11 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "system")
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
+@Immutable
 public class SystemEntity {
 
     @Id
@@ -26,13 +36,13 @@ public class SystemEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SystemEntity)) return false;
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
         SystemEntity that = (SystemEntity) o;
-        return Objects.equals(id, that.id);
+        return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }

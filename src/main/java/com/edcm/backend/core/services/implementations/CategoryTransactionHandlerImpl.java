@@ -4,10 +4,13 @@ import com.edcm.backend.core.services.CategoryTransactionHandler;
 import com.edcm.backend.infrastructure.domain.database.entities.CommodityCategoryEntity;
 import com.edcm.backend.infrastructure.domain.database.repositories.CommodityCategoryRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+
+import javax.persistence.LockModeType;
 
 @Service
 @AllArgsConstructor
@@ -20,7 +23,7 @@ public class CategoryTransactionHandlerImpl implements CategoryTransactionHandle
             .orElseGet(() -> {
                 var categoryEntity = new CommodityCategoryEntity();
                 categoryEntity.setName(category);
-                return repository.saveAndFlush(categoryEntity);
+                return repository.save(categoryEntity);
             });
     }
 }

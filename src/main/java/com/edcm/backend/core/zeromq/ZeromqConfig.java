@@ -43,7 +43,7 @@ public class ZeromqConfig {
         ObjectMapper objectMapper,
         ZeromqCommoditesService zeromqCommoditesService,
         CommodityCheckService commodityCheckService) {
-        commodityCheckService.updateCommodities();
+        //commodityCheckService.updateCommodities();
         return new ZeromqMessageHandler(objectMapper, zeromqCommoditesService);
     }
 }

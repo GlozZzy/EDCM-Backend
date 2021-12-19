@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.validator.internal.util.stereotypes.Immutable;
 
 import javax.persistence.*;
 import java.util.Objects;
@@ -30,11 +31,13 @@ public class StationCommodityEntity {
     @JoinColumn(name = "station_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @Immutable
     private StationEntity station;
 
     @JoinColumn(name = "commodity_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @ToString.Exclude
+    @Immutable
     private CommodityEntity commodity;
 
     @Column(name = "stock")
@@ -52,8 +55,7 @@ public class StationCommodityEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StationCommodityEntity)) return false;
-        StationCommodityEntity that = (StationCommodityEntity) o;
+        if (!(o instanceof StationCommodityEntity that)) return false;
         return Objects.equals(id, that.id);
     }
 

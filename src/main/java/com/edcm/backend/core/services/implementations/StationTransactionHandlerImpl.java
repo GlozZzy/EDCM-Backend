@@ -7,9 +7,8 @@ import com.edcm.backend.infrastructure.domain.database.repositories.StationCommo
 import com.edcm.backend.infrastructure.domain.database.repositories.StationEconomyRepository;
 import com.edcm.backend.infrastructure.domain.database.repositories.StationRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @AllArgsConstructor
@@ -28,8 +27,9 @@ public class StationTransactionHandlerImpl implements StationTransactionHandler 
     }
 
     @Override
+    @Modifying
     public StationEntity saveStation(StationEntity station) {
-        return stationRepository.save(station);
+        return stationRepository.saveAndFlush(station);
     }
 
 }

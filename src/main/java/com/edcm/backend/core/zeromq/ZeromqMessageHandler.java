@@ -34,7 +34,6 @@ public class ZeromqMessageHandler implements MessageHandler {
         byte[] payload = (byte[]) message.getPayload();
         Inflater inflater = new Inflater();
         inflater.setInput(payload);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(payload.length);
         try {
             int outputLength = inflater.inflate(output);
             String outputString = new String(output, 0, outputLength, StandardCharsets.UTF_8);

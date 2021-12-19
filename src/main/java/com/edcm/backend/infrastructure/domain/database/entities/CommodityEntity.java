@@ -2,9 +2,23 @@ package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.RequiredArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.Immutable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Index;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
@@ -12,9 +26,13 @@ import java.util.Objects;
     @Index(name = "idx_commodity_name_unq", columnList = "name", unique = true),
     @Index(name = "idx_commodity_eddn_name_unq", columnList = "eddn_name", unique = true)
 })
-@Data
+@Getter
+@Setter
+@ToString
+@RequiredArgsConstructor
 @AllArgsConstructor
 @NoArgsConstructor
+@Immutable
 public class CommodityEntity {
 
     @Id
@@ -49,13 +67,13 @@ public class CommodityEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CommodityEntity)) return false;
-        CommodityEntity entity = (CommodityEntity) o;
-        return Objects.equals(id, entity.id);
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        CommodityEntity commodity = (CommodityEntity) o;
+        return id != null && Objects.equals(id, commodity.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }

@@ -1,8 +1,12 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import org.hibernate.annotations.Immutable;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -13,13 +17,17 @@ import javax.persistence.Index;
 import javax.persistence.Table;
 import java.util.Objects;
 
+
 @Entity
 @Table(name = "commodity_category", indexes = {
     @Index(name = "idx_commoditycategory_name_unq", columnList = "name", unique = true)
 })
-@Data
+@Getter
+@Setter
+@ToString
 @NoArgsConstructor
 @AllArgsConstructor
+@Immutable
 public class CommodityCategoryEntity {
 
     @Id
@@ -37,12 +45,13 @@ public class CommodityCategoryEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof CommodityCategoryEntity category)) return false;
-        return Objects.equals(id, category.id);
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
+        CommodityCategoryEntity category = (CommodityCategoryEntity) o;
+        return id != null && Objects.equals(id, category.id);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return getClass().hashCode();
     }
 }
