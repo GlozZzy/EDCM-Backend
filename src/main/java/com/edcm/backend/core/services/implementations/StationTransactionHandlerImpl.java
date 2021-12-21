@@ -19,10 +19,18 @@ public class StationTransactionHandlerImpl implements StationTransactionHandler 
     private final StationEconomyRepository stationEconomyRepository;
 
     @Override
-    public StationEntity createOrFindStation(String name) {
-        return stationRepository.findByName(name)
+    public StationEntity createOrFindStation(String stationName, String systemName) {
+        return stationRepository.findByNameAndSystem_Name(stationName, systemName)
             .orElseGet(() -> StationEntity.builder()
-                .name(name)
+                .name(stationName)
+                .build());
+    }
+
+    @Override
+    public StationEntity createOfFindCarrier(String code) {
+        return stationRepository.findByName(code)
+            .orElseGet(() -> StationEntity.builder()
+                .name(code)
                 .build());
     }
 

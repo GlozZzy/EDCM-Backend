@@ -2,10 +2,8 @@ package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
@@ -18,8 +16,10 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "station", indexes = {
-    @Index(name = "idx_stationentity_name_unq", columnList = "name", unique = true)
+    @Index(name = "idx_stationentity_system_unq", columnList = "system, name", unique = true),
+    @Index(name = "idx_stationentity_name", columnList = "name")
 })
+
 @Getter
 @Setter
 @ToString
@@ -30,7 +30,7 @@ public class StationEntity {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Immutable
     private Long id;
 
@@ -84,5 +84,9 @@ public class StationEntity {
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public boolean isCarrier() {
+        return name.matches("([A-Z0-9]){3}-([A-Z0-9]){3}");
     }
 }

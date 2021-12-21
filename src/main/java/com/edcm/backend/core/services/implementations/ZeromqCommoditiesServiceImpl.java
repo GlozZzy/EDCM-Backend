@@ -20,7 +20,6 @@ import org.hibernate.PersistentObjectException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.jpa.repository.Lock;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Propagation;
@@ -51,7 +50,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     public void saveData(ZeromqCommodityPayload payload) {
         CommodityContent content = payload.getContent();
-        var station = stationHandler.createOrFindStation(content.getStationName());
+        StationEntity station = getStationEntity(content);
         var system = systemHandler.createOrFindSystem(content.getSystemName());
         var commodityReferences = getMapOfCommodities(content);
         station.setSystem(system);
@@ -62,6 +61,16 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
             saveStation(station);
         } catch (ConstraintViolationException | PersistentObjectException | DataAccessException e) {
             log.error("Error saving commodity info \n" + content, e);
+        }
+    }
+
+    private StationEntity getStationEntity(CommodityContent content) {
+        if (content.getSystemName().matches("([A-Z0-9]){3}-([A-Z0-9]){3}")) {
+            return stationHandler.createOfFindCarrier(content.getStationName());
+        } else {
+            return stationHandler.createOrFindStation(
+                content.getStationName(),
+                content.getSystemName());
         }
     }
 

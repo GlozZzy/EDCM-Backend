@@ -1,14 +1,7 @@
 package com.edcm.backend.core.zeromq;
 
-import com.edcm.backend.core.services.CategoryTransactionHandler;
-import com.edcm.backend.core.services.CommodityTransactionHandler;
-import com.edcm.backend.core.services.EconomyTransactionHandler;
-import com.edcm.backend.core.services.StationTransactionHandler;
-import com.edcm.backend.core.services.SystemTransactionHandler;
 import com.edcm.backend.core.services.ZeromqCommoditesService;
-import com.edcm.backend.core.zeromq.schemas.CommodityContent;
 import com.edcm.backend.core.zeromq.schemas.ZeromqCommodityPayload;
-import com.edcm.backend.infrastructure.domain.database.entities.StationEntity;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
@@ -17,7 +10,6 @@ import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
 
-import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;

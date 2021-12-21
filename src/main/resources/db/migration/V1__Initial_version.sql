@@ -38,7 +38,7 @@ create table economy
 
 create table station
 (
-    id     bigint       not null
+    id bigserial not null
         primary key,
     name   varchar(255) not null
         constraint idx_stationentity_name_unq
