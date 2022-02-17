@@ -45,9 +45,9 @@ public class CommodityEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
-    private CommodityCategoryEntity category;
+    private CommodityCategory category;
 
-    public CommodityEntity(String name, String eddnName, CommodityCategoryEntity category) {
+    public CommodityEntity(String name, String eddnName, CommodityCategory category) {
         this.name = name;
         this.eddnName = eddnName;
         this.category = category;

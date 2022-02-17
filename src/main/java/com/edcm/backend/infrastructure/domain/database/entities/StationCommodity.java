@@ -4,13 +4,19 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.hibernate.validator.internal.util.stereotypes.Immutable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
@@ -21,7 +27,7 @@ import java.util.Objects;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StationCommodityEntity {
+public class StationCommodity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +38,7 @@ public class StationCommodityEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @ToString.Exclude
     @Immutable
-    private StationEntity station;
+    private Station station;
 
     @JoinColumn(name = "commodity_id", referencedColumnName = "id", nullable = false)
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
@@ -55,7 +61,7 @@ public class StationCommodityEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof StationCommodityEntity that)) return false;
+        if (!(o instanceof StationCommodity that)) return false;
         return Objects.equals(id, that.id);
     }
 

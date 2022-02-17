@@ -1,19 +1,17 @@
-package com.edcm.backend.core.services.implementations;
+package com.edcm.backend.core.services.commodity;
 
-import com.edcm.backend.core.services.CategoryTransactionHandler;
-import com.edcm.backend.core.services.CommodityTransactionHandler;
-import com.edcm.backend.core.services.EconomyTransactionHandler;
-import com.edcm.backend.core.services.StationTransactionHandler;
-import com.edcm.backend.core.services.SystemTransactionHandler;
-import com.edcm.backend.core.services.ZeromqCommoditesService;
+import com.edcm.backend.core.services.StationTransactionService;
+import com.edcm.backend.core.services.category.CategoryTransactionService;
+import com.edcm.backend.core.services.economy.EconomyTransactionService;
+import com.edcm.backend.core.services.system.SystemTransactionService;
 import com.edcm.backend.core.zeromq.schemas.Commodity;
 import com.edcm.backend.core.zeromq.schemas.CommodityContent;
 import com.edcm.backend.core.zeromq.schemas.ZeromqCommodityPayload;
-import com.edcm.backend.infrastructure.domain.database.entities.CommodityCategoryEntity;
+import com.edcm.backend.infrastructure.domain.database.entities.CommodityCategory;
 import com.edcm.backend.infrastructure.domain.database.entities.CommodityEntity;
-import com.edcm.backend.infrastructure.domain.database.entities.ProhibitedCommodityEntity;
-import com.edcm.backend.infrastructure.domain.database.entities.StationCommodityEntity;
-import com.edcm.backend.infrastructure.domain.database.entities.StationEntity;
+import com.edcm.backend.infrastructure.domain.database.entities.ProhibitedCommodity;
+import com.edcm.backend.infrastructure.domain.database.entities.Station;
+import com.edcm.backend.infrastructure.domain.database.entities.StationCommodity;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.PersistentObjectException;
@@ -36,11 +34,11 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 @Slf4j
 public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
-    private final CategoryTransactionHandler categoryHandler;
-    private final CommodityTransactionHandler commodityHandler;
-    private final EconomyTransactionHandler economyHandler;
-    private final StationTransactionHandler stationHandler;
-    private final SystemTransactionHandler systemHandler;
+    private final CategoryTransactionService categoryService;
+    private final CommodityTransactionService commodityService;
+    private final EconomyTransactionService economyService;
+    private final StationTransactionService stationService;
+    private final SystemTransactionService systemService;
 
     @Override
     @Transactional(
@@ -50,8 +48,8 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     @Lock(LockModeType.OPTIMISTIC_FORCE_INCREMENT)
     public void saveData(ZeromqCommodityPayload payload) {
         CommodityContent content = payload.getContent();
-        StationEntity station = getStationEntity(content);
-        var system = systemHandler.createOrFindSystem(content.getSystemName());
+        Station station = getStation(content);
+        var system = systemService.createOrFindSystem(content.getSystemName());
         var commodityReferences = getMapOfCommodities(content);
         station.setSystem(system);
         updateEconomies(station, content);
@@ -64,19 +62,19 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
         }
     }
 
-    private StationEntity getStationEntity(CommodityContent content) {
+    private Station getStation(CommodityContent content) {
         if (content.getSystemName().matches("([A-Z0-9]){3}-([A-Z0-9]){3}")) {
-            return stationHandler.createOfFindCarrier(content.getStationName());
+            return stationService.createOfFindCarrier(content.getStationName());
         } else {
-            return stationHandler.createOrFindStation(
+            return stationService.createOrFindStation(
                 content.getStationName(),
                 content.getSystemName());
         }
     }
 
-    public void saveStation(StationEntity station) {
+    public void saveStation(Station station) {
         boolean isNewStation = station.getId() == null;
-        stationHandler.saveStation(station);
+        stationService.saveStation(station);
         if (isNewStation) {
             log.debug(String.format("Saved \"%s\" station info", station.getName()));
         } else {
@@ -84,13 +82,13 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
         }
     }
 
-    private void updateEconomies(StationEntity station, CommodityContent content) {
+    private void updateEconomies(Station station, CommodityContent content) {
         station.getEconomies().clear();
         if (content.getEconomies() != null) {
             var economies = content.getEconomies()
                 .stream()
                 .map(economy -> {
-                    var stationEconomyEntity = economyHandler.createOrFindEconomy(economy.getName());
+                    var stationEconomyEntity = economyService.createOrFindEconomy(economy.getName());
                     Double proportion = economy.getProportion();
                     stationEconomyEntity.setProportion(proportion != null ? proportion : 1.0);
                     return stationEconomyEntity;
@@ -102,7 +100,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     }
 
     private void updateProhibited(
-        StationEntity station,
+        Station station,
         CommodityContent content,
         Map<String, CommodityEntity> commodityEntityMap) {
         station.getProhibited().clear();
@@ -112,7 +110,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
                 .map(prohibited -> {
                         String eddnName = prohibited.toLowerCase(Locale.ROOT);
                         CommodityEntity commodityReference = getCommodityEntity(commodityEntityMap, eddnName);
-                        return new ProhibitedCommodityEntity(station, commodityReference);
+                        return new ProhibitedCommodity(station, commodityReference);
                     }
                 )
                 .toList();
@@ -121,7 +119,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
     }
 
     private void updateStationCommodities(
-        StationEntity station,
+        Station station,
         CommodityContent content,
         Map<String, CommodityEntity> commodityEntityMap) {
         station.getCommodities().clear();
@@ -131,7 +129,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
                 .map(commodity -> {
                     String eddnName = commodity.getEddnName().toLowerCase(Locale.ROOT);
                     CommodityEntity commodityReference = commodityEntityMap.get(eddnName);
-                    return StationCommodityEntity.builder()
+                    return StationCommodity.builder()
                         .commodity(commodityReference)
                         .buyPrice(commodity.getBuyPrice())
                         .sellPrice(commodity.getSellPrice())
@@ -161,7 +159,7 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
                 .map(item -> item.toLowerCase(Locale.ROOT))
                 .collect(Collectors.toSet()));
         }
-        var commodityReferencesMap = commodityHandler.findAllByEddnName(commodities)
+        var commodityReferencesMap = commodityService.findAllByEddnName(commodities)
             .stream()
             .collect(Collectors.toMap(
                 CommodityEntity::getEddnName,
@@ -170,9 +168,9 @@ public class ZeromqCommoditiesServiceImpl implements ZeromqCommoditesService {
 
         commodities.forEach(commodity -> {
             if (commodityReferencesMap.get(commodity.toLowerCase()) == null) {
-                CommodityCategoryEntity category = categoryHandler.createOrFindCategory("Unknown");
+                CommodityCategory category = categoryService.createOrFindCategory("Unknown");
                 CommodityEntity newCommodity = new CommodityEntity(commodity, commodity, category);
-                CommodityEntity managedCommodity = commodityHandler.saveCommodity(newCommodity);
+                CommodityEntity managedCommodity = commodityService.saveCommodity(newCommodity);
 
                 commodityReferencesMap.put(managedCommodity.getEddnName(), managedCommodity);
             }
