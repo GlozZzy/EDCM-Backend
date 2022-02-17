@@ -34,8 +34,12 @@ management:
 logging:
   level:
     com.edcm: DEBUG
-values:
-  github-commodities-url: https://raw.githubusercontent.com/RemainNA/cargo-manifest/main/items.json
-  scheduled:
-    github:
-      cron: "0 0 */12 * * ?"
+github-commodities-url: https://raw.githubusercontent.com/RemainNA/cargo-manifest/main/items.json
+zeromq:
+  eddn-channel-url: tcp://eddn.edcd.io:9500:9500
+  timeout: 600000
+scheduled:
+  github:
+    cron: "0 0 */12 * * ?"
+  eddn:
+    cron:

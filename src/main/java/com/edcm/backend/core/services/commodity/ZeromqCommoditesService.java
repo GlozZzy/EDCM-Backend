@@ -1,4 +1,4 @@
-package com.edcm.backend.core.services;
+package com.edcm.backend.core.services.commodity;
 
 import com.edcm.backend.core.zeromq.schemas.ZeromqCommodityPayload;
 

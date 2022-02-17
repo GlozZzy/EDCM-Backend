@@ -1,13 +1,9 @@
 package com.edcm.backend.core.zeromq;
 
+import com.edcm.backend.core.properties.ZeromqConfigurationProperties;
 import com.edcm.backend.core.schedule.CommodityCheckService;
-import com.edcm.backend.core.services.CategoryTransactionHandler;
-import com.edcm.backend.core.services.CommodityTransactionHandler;
-import com.edcm.backend.core.services.EconomyTransactionHandler;
-import com.edcm.backend.core.services.StationTransactionHandler;
-import com.edcm.backend.core.services.SystemTransactionHandler;
-import com.edcm.backend.core.services.ZeromqCommoditesService;
-import com.edcm.backend.infrastructure.domain.database.repositories.ProhibitedCommodityRepository;
+import com.edcm.backend.core.services.ChannelWatcher;
+import com.edcm.backend.core.services.commodity.ZeromqCommoditesService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -30,20 +26,22 @@ public class ZeromqConfig {
     }
 
     @Bean(name = "zeroMqChannel")
-    public ZeroMqChannel zeroMqPubSubChannel(ZContext context) {
+    public ZeroMqChannel zeroMqPubSubChannel(ZContext context, ZeromqConfigurationProperties properties) {
         ZeroMqChannel channel = new ZeroMqChannel(context, true);
-        channel.setConnectUrl("tcp://eddn.edcd.io:9500:9500");
+        channel.setConnectUrl(properties.getEddnChannelUrl());
         return channel;
     }
 
     @Bean
-    @DependsOn("commodityCheckService")
+    @DependsOn(value = {"channelWatcher", "commodityCheckService"})
     @ServiceActivator(inputChannel = "zeroMqChannel")
-    public MessageHandler messageHandler(
+    public MessageHandler messageService(
         ObjectMapper objectMapper,
         ZeromqCommoditesService zeromqCommoditesService,
+        ChannelWatcher channelWatcher,
         CommodityCheckService commodityCheckService) {
+
         commodityCheckService.updateCommodities();
-        return new ZeromqMessageHandler(objectMapper, zeromqCommoditesService);
+        return new ZeromqMessageHandler(objectMapper, zeromqCommoditesService, channelWatcher);
     }
 }

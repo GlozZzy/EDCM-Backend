@@ -2,10 +2,8 @@ package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
@@ -18,19 +16,21 @@ import java.util.Objects;
 
 @Entity
 @Table(name = "station", indexes = {
-    @Index(name = "idx_stationentity_name_unq", columnList = "name", unique = true)
+    @Index(name = "idx_stationentity_system_unq", columnList = "system, name", unique = true),
+    @Index(name = "idx_stationentity_name", columnList = "name")
 })
+
 @Getter
 @Setter
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StationEntity {
+public class Station {
 
     @Id
     @Column(name = "id")
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Immutable
     private Long id;
 
@@ -40,35 +40,35 @@ public class StationEntity {
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "system", nullable = false)
-    private SystemEntity system;
+    private System system;
 
     @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "station", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @ToString.Exclude
-    private List<ProhibitedCommodityEntity> prohibited = new ArrayList<>();
+    private List<ProhibitedCommodity> prohibited = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "station", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @ToString.Exclude
-    private List<StationCommodityEntity> commodities = new ArrayList<>();
+    private List<StationCommodity> commodities = new ArrayList<>();
 
     @Builder.Default
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "station", cascade = {CascadeType.ALL}, orphanRemoval = true)
     @ToString.Exclude
-    private List<StationEconomyEntity> economies = new ArrayList<>();
+    private List<StationEconomy> economies = new ArrayList<>();
 
 
-    public void addCommodity(StationCommodityEntity commodity) {
+    public void addCommodity(StationCommodity commodity) {
         commodity.setStation(this);
         commodities.add(commodity);
     }
 
-    public void addProhibited(ProhibitedCommodityEntity prohibited) {
+    public void addProhibited(ProhibitedCommodity prohibited) {
         prohibited.setStation(this);
         this.prohibited.add(prohibited);
     }
 
-    public void addEconomy(StationEconomyEntity economy){
+    public void addEconomy(StationEconomy economy) {
         economy.setStation(this);
         economies.add(economy);
     }
@@ -77,12 +77,16 @@ public class StationEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        StationEntity that = (StationEntity) o;
+        Station that = (Station) o;
         return id != null && Objects.equals(id, that.id);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    public boolean isCarrier() {
+        return name.matches("([A-Z0-9]){3}-([A-Z0-9]){3}");
     }
 }

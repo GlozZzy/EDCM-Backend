@@ -1,8 +1,7 @@
 package com.edcm.backend.infrastructure.domain.database.repositories;
 
-import com.edcm.backend.infrastructure.domain.database.entities.CommodityCategoryEntity;
+import com.edcm.backend.infrastructure.domain.database.entities.CommodityCategory;
 import com.edcm.backend.infrastructure.domain.database.entities.CommodityEntity;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
@@ -22,7 +21,7 @@ public interface CommodityRepository extends JpaRepository<CommodityEntity, Long
 
     Optional<CommodityEntity> findCommodityEntityByEddnName(String eddnName);
 
-    List<CommodityEntity> getCommodityEntitiesByCategory(CommodityCategoryEntity category);
+    List<CommodityEntity> getCommodityEntitiesByCategory(CommodityCategory category);
 
     List<CommodityEntity> findDistinctByEddnNameInIgnoreCase(@NonNull Collection<String> eddnNames);
 

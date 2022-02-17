@@ -1,6 +1,5 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
-import lombok.Data;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
@@ -17,17 +16,17 @@ import javax.persistence.Table;
 import java.util.Objects;
 
 @Entity
-@Table(name = "system")
+@Table(name = "economy")
 @Getter
 @Setter
 @ToString
 @RequiredArgsConstructor
 @Immutable
-public class SystemEntity {
+public class Economy {
 
     @Id
-    @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id", nullable = false)
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -37,7 +36,7 @@ public class SystemEntity {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) return false;
-        SystemEntity that = (SystemEntity) o;
+        Economy that = (Economy) o;
         return id != null && Objects.equals(id, that.id);
     }
 

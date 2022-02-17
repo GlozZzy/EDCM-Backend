@@ -4,12 +4,19 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.validator.internal.util.stereotypes.Immutable;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.util.Objects;
 
 @Getter
@@ -18,7 +25,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "prohibited_at_station")
 @ToString
-public class ProhibitedCommodityEntity {
+public class ProhibitedCommodity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,7 +37,7 @@ public class ProhibitedCommodityEntity {
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @Immutable
     @ToString.Exclude
-    private StationEntity station;
+    private Station station;
 
     @OnDelete(action = OnDeleteAction.CASCADE)
     @JoinColumn(name = "commodity_id", referencedColumnName = "id", nullable = false)
@@ -39,7 +46,7 @@ public class ProhibitedCommodityEntity {
     @ToString.Exclude
     private CommodityEntity commodity;
 
-    public ProhibitedCommodityEntity(StationEntity station, CommodityEntity commodity) {
+    public ProhibitedCommodity(Station station, CommodityEntity commodity) {
         this.station = station;
         this.commodity = commodity;
     }
@@ -47,7 +54,7 @@ public class ProhibitedCommodityEntity {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof ProhibitedCommodityEntity that)) return false;
+        if (!(o instanceof ProhibitedCommodity that)) return false;
         return Objects.equals(id, that.id);
     }
 

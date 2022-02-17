@@ -6,7 +6,7 @@ import java.io.Serializable;
 import java.util.List;
 
 @Data
-public class StationEntityDto implements Serializable {
+public class StationDto implements Serializable {
     private final String name;
     private final String systemName;
     private final List<CommoditySharedData> prohibited;

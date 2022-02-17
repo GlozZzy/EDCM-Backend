@@ -1,10 +1,8 @@
 package com.edcm.backend.infrastructure.domain.database.entities;
 
 import lombok.AllArgsConstructor;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
@@ -39,17 +37,17 @@ public class CommodityEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
-    @Column(name = "eddn_name", nullable = false)
+    @Column(name = "eddn_name", nullable = false, unique = true)
     private String eddnName;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "category_id", referencedColumnName = "id", nullable = false)
-    private CommodityCategoryEntity category;
+    private CommodityCategory category;
 
-    public CommodityEntity(String name, String eddnName, CommodityCategoryEntity category) {
+    public CommodityEntity(String name, String eddnName, CommodityCategory category) {
         this.name = name;
         this.eddnName = eddnName;
         this.category = category;
